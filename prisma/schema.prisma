@@ -1,10 +1,10 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum Role {
@@ -15,37 +15,36 @@ enum Role {
 }
 
 model User {
-  id        String  @id @default(cuid())
-  email     String  @unique
-  password  String
-  name      String
-  role      Role  @default(USER)
-  teamId    String?
-  Team      Team?  @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  id       String  @id @default(cuid())
+  email    String  @unique
+  password String
+  name     String
+  role     Role    @default(USER)
+  teamId   String?
+  Team     Team?   @relation(fields: [teamId], references: [id], onDelete: SetNull)
 
   // Timestamps
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Indexes - For performance
   @@index([email])
   @@index([role])
   @@index([teamId])
-
   // Map
   @@map("users")
 }
 
 model Team {
-  id          String    @id @default(cuid())
-  name        String    @unique
+  id          String  @id @default(cuid())
+  name        String  @unique
   description String?
-  code        String    @unique
+  code        String  @unique
   member      User[]
 
   // Timestamps
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Map
   @@map("teams")
