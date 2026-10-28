@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (existingUser) {
-      NextResponse.json(
+      return NextResponse.json(
         {
           error: "User with this email address already exists",
         },
@@ -81,7 +81,6 @@ export async function POST(request: NextRequest) {
         role: user.role,
         teamId: user.teamId,
         team: user.team,
-        token,
       },
     });
 
