@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     if (!user) {
       return NextResponse.json(
         {
-          error: "your'e not authorized to access user information",
+          error: "you're not authorized to access user information",
         },
         { status: 401 },
       );
