@@ -6,34 +6,47 @@ https://stitch.withgoogle.com/projects/1154367852638652517
 Use the **Stitch MCP** to pull screens and tokens. This file records how they map into code, so fill in the tables after the first inventory pass. Where this file and Stitch disagree, Stitch wins.
 
 ## 1. Design tokens
-Map Stitch values to shadcn CSS variables in `src/app/globals.css`. Never hardcode colors in components.
+Map Stitch values to shadcn CSS variables in `app/globals.css`. Never hardcode colors in components.
 
 | Token | Stitch value | shadcn variable |
 |---|---|---|
-| Background | _fill in_ | `--background` |
-| Foreground | _fill in_ | `--foreground` |
-| Primary | _fill in_ | `--primary` / `--primary-foreground` |
-| Secondary | _fill in_ | `--secondary` |
-| Muted | _fill in_ | `--muted` / `--muted-foreground` |
-| Accent | _fill in_ | `--accent` |
-| Destructive | _fill in_ | `--destructive` |
-| Border / Input / Ring | _fill in_ | `--border` / `--input` / `--ring` |
-| Radius | _fill in_ | `--radius` |
-| Font (sans / mono) | _fill in_ | loaded via `next/font` |
+| Background | `#ffffff` (canvas: `#fcf8fb`) | `--background` |
+| Foreground | `#09090b` (on-surface: `#1c1b1d`) | `--foreground` |
+| Primary / Primary Foreground | `#4f46e5` / `#ffffff` (brand operational accent) | `--primary` / `--primary-foreground` |
+| Secondary / Secondary Foreground | `#0051d5` / `#ffffff` | `--secondary` / `--secondary-foreground` |
+| Muted / Muted Foreground | `#f4f4f5` (surface-container-low: `#f6f2f5`) / `#71717a` | `--muted` / `--muted-foreground` |
+| Accent / Accent Foreground | `#f4f4f5` / `#09090b` | `--accent` / `--accent-foreground` |
+| Destructive / Destructive Foreground | `#ba1a1a` (`#ef4444`) / `#ffffff` | `--destructive` / `--destructive-foreground` |
+| Border / Input | `#e4e4e7` (zinc-200, outline-variant: `#c7c4d8`) | `--border` / `--input` |
+| Ring | `#4f46e5` (focus brand ring) | `--ring` |
+| Radius | `0.5rem` (8px base card/modal, 6px controls) | `--radius` |
+| Font (sans / mono) | Geist (`GeistSans`, fallback `Inter`) | loaded via `next/font` |
 
-Dark mode: only if present in the Stitch design.
+### Semantic Role Indicators
+| Role | Background | Border | Text |
+|---|---|---|---|
+| ADMIN | `#eef2ff` (primary-fixed `#e2dfff`) | 1px solid `#c7d2fe` | `#4338ca` (primary `#3525cd`) |
+| MANAGER | `#eff6ff` (secondary-fixed `#dbe1ff`) | 1px solid `#bfdbfe` | `#1d4ed8` (secondary `#0051d5`) |
+| USER | `#f4f4f5` (surface-container `#f0edf0`) | 1px solid `#e4e4e7` | `#3f3f46` (on-surface-variant) |
+| GUEST | `transparent` | 1px dashed `#d4d4d8` | `#52525b` |
+
+Dark mode: Supported in the Stitch design system (`#09090B` base background, `#18181B` surface container, `#27272A` borders, with theme switcher in Profile and Sidebar).
 
 ## 2. Screens → routes
 
 | Stitch screen | Route | Notes |
 |---|---|---|
-| Login | `/login` | |
-| Register | `/register` | |
-| Dashboard | `/dashboard` | stat cards, recent activity |
-| Users | `/users` | table, filters, create/edit dialog |
-| Teams | `/teams` | cards or table, members panel |
-| Roles / access | `/roles` | ADMIN only |
-| 403 / 404 | `not-found.tsx`, `forbidden` view | |
+| Crewbase — Login | `/login` | Public auth page; email + password, SSO buttons, error alert, remember me |
+| Crewbase — Register | `/register` | Public auth page; name, email, password, optional team code, admin info banner |
+| Crewbase — Dashboard | `/dashboard` | Metrics cards, access control reference, recent member table with filters, role distribution bar |
+| Crewbase — Dashboard (Skeleton) | `/dashboard` (loading) | Skeleton loaders for metrics, roster table, and role breakdown |
+| Crewbase — Users | `/users` | Directory table, search, role & team filters, state switcher, member action dropdown |
+| Crewbase — Users (Change Role Dialog & Toast) | `/users` (modal) | Dialog for role reassignment + Sonner toast confirmation |
+| Crewbase — Users (Change Team Dialog) | `/users` (modal) | Dialog with searchable team combobox + Sonner toast confirmation |
+| Crewbase — Teams | `/teams` | Squad cards grid, department filter, search, copyable team codes, roster preview, coming soon badge |
+| Crewbase — Roles / Access Control | `/roles` | ADMIN only; role definition, scope entitlement matrix, member role allocation |
+| Crewbase — Profile | `/profile` (alias `/settings`) | User identity card, SCIM directory details, active sessions, appearance theme selector |
+| Crewbase — System States & Error Pages | `not-found.tsx`, `error.tsx`, `/system-states` | 401 session expired, 403 access restricted, 404 not found, 500 server fault, connectivity alert banner |
 
 Adjust to the real Stitch inventory.
 

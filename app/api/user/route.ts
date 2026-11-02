@@ -37,12 +37,9 @@ export async function GET(request: NextRequest) {
     // Additional Filters
     if (teamId) where.teamId = teamId;
 
-    /*
-     * TODO: Check this out later
-     * Getting typescript error here idk why
-     * Type 'string' is not assignable to type 'Role | EnumRoleFilter<"User"> | undefined'.
-     */
-    if (role) where.role = role;
+    if (role && Object.values(Role).includes(role as Role)) {
+      where.role = role as Role;
+    }
 
     const users = await prisma.user.findMany({
       where,
