@@ -1,0 +1,62 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { ServerCrash, RotateCcw, Home } from "lucide-react";
+
+export default function ErrorPage({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  React.useEffect(() => {
+    console.error("Application runtime error:", error);
+  }, [error]);
+
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-background">
+      <Card className="max-w-md w-full border border-border shadow-xs text-center p-6 sm:p-8">
+        <CardContent className="space-y-4 p-0">
+          <div className="size-14 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center mx-auto">
+            <ServerCrash className="size-7" />
+          </div>
+
+          <div className="space-y-1.5">
+            <span className="text-xs font-semibold tracking-wider uppercase text-rose-600">
+              Error 500
+            </span>
+            <h1 className="text-xl font-bold tracking-tight text-foreground">
+              Internal Service Fault
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              An unexpected system anomaly interrupted this request. Our telemetry logging has recorded the incident.
+            </p>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => reset()}
+              className="gap-1.5"
+            >
+              <RotateCcw className="size-3.5" />
+              <span>Retry Action</span>
+            </Button>
+            <Button
+              size="sm"
+              render={<Link href="/dashboard" className="gap-1.5 bg-primary text-primary-foreground" />}
+            >
+              <Home className="size-3.5" />
+              <span>Workspace Dashboard</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

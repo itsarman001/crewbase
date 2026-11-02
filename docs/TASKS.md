@@ -23,12 +23,12 @@ Use the Stitch MCP for designs and the shadcn MCP for components.
 - [x] 1.5 Shared components: PageHeader, StatCard, DataTable, EmptyState, RoleBadge, ConfirmDialog
 - [x] 1.6 Auth screens: login, register (visual validation only)
 - [x] 1.7 Dashboard
-- [ ] 1.8 Users: list, filters, create/edit dialog, delete confirm
-- [ ] 1.9 Teams: list, detail/members, create/edit dialog
-- [ ] 1.10 Roles: role assignment screen
-- [ ] 1.11 Loading, empty, error and forbidden states; not-found page
-- [ ] 1.12 Responsive and a11y pass; `pnpm lint && pnpm build` clean
-- [ ] 1.13 List "TODO: wire up" spots for Phase 2
+- [x] 1.8 Users: list, filters, create/edit dialog, delete confirm
+- [x] 1.9 Teams: list, detail/members, create/edit dialog
+- [x] 1.10 Roles: role assignment screen
+- [x] 1.11 Loading, empty, error and forbidden states; not-found page
+- [x] 1.12 Responsive and a11y pass; `pnpm lint && pnpm build` clean
+- [x] 1.13 List "TODO: wire up" spots for Phase 2
 
 ## Phase 2: Functionality
 - [ ] 2.1 `lib/permissions.ts` finalised against the `SPEC.md` matrix (with unit tests)
@@ -51,4 +51,16 @@ Use the Stitch MCP for designs and the shadcn MCP for components.
 - [ ] 3.5 Security review: cookie flags, no password leakage, rate-limit login (optional)
 
 ## Follow-ups / notes
-- _Agent: add discovered work here._
+- **Phase 2 "TODO: wire up" inventory**:
+  - `components/auth/login-form.tsx` → Wire up `POST /api/auth/login`, handle invalid credentials, set HTTP-only cookie.
+  - `components/auth/register-form.tsx` → Wire up `POST /api/auth/register`, handle email conflict, set session.
+  - `components/layout/user-nav.tsx` & `header.tsx` → Replace `mockCurrentUser` with live server session (`getSession()`); wire "Sign out" to `POST /api/auth/logout`.
+  - `app/(dashboard)/dashboard/page.tsx` → Replace `mockStats`, `mockTeamDistribution`, `mockRecentActivity` with real Prisma database queries.
+  - `app/(dashboard)/users/page.tsx` → Replace `mockUsers` state with `GET /api/user` query, connect search/role/team server filters, pagination.
+  - `components/users/invite-user-dialog.tsx` → Wire to `POST /api/user` with Zod validation.
+  - `components/users/change-role-dialog.tsx` → Wire to `PATCH /api/user/[userId]/role` with last-admin guard check.
+  - `components/users/change-team-dialog.tsx` → Wire to `PATCH /api/user/[userId]/team`.
+  - `app/(dashboard)/teams/page.tsx` → Wire team creation and roster queries to real endpoints.
+  - `components/teams/team-roster-dialog.tsx` → Wire member unassignment / reassignment actions to backend.
+  - `app/(dashboard)/profile/page.tsx` → Wire profile updates and password change to `PATCH /api/user/me`.
+  - Auth protection: Implement `proxy.ts` (Next.js 16) for token presence checks, redirecting unauthenticated users to `/login`.
