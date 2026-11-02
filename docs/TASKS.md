@@ -16,8 +16,8 @@ Work top to bottom. Do only the phase requested. Tick boxes as you finish and ad
 ## Phase 1: UI only (mock data, no backend logic)
 Use the Stitch MCP for designs and the shadcn MCP for components.
 
-- [ ] 1.1 Inventory Stitch screens; fill `DESIGN.md` route and token tables; **stop for review**
-- [ ] 1.2 Initialise shadcn (`pnpm dlx shadcn@latest init`); map tokens into `globals.css`
+- [x] 1.1 Inventory Stitch screens; fill `DESIGN.md` route and token tables; **stop for review**
+- [x] 1.2 Initialise shadcn (`pnpm dlx shadcn@latest init`); map tokens into `globals.css`
 - [ ] 1.3 Types (`types/index.ts`) and typed mock data (`data/mock.ts`)
 - [ ] 1.4 Layout shell: sidebar, header, user menu, mobile Sheet
 - [ ] 1.5 Shared components: PageHeader, StatCard, DataTable, EmptyState, RoleBadge, ConfirmDialog
