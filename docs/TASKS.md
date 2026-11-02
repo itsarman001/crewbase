@@ -18,11 +18,11 @@ Use the Stitch MCP for designs and the shadcn MCP for components.
 
 - [x] 1.1 Inventory Stitch screens; fill `DESIGN.md` route and token tables; **stop for review**
 - [x] 1.2 Initialise shadcn (`pnpm dlx shadcn@latest init`); map tokens into `globals.css`
-- [ ] 1.3 Types (`types/index.ts`) and typed mock data (`data/mock.ts`)
-- [ ] 1.4 Layout shell: sidebar, header, user menu, mobile Sheet
-- [ ] 1.5 Shared components: PageHeader, StatCard, DataTable, EmptyState, RoleBadge, ConfirmDialog
+- [x] 1.3 Types (`types/index.ts`) and typed mock data (`data/mock.ts`)
+- [x] 1.4 Layout shell: sidebar, header, user menu, mobile Sheet
+- [x] 1.5 Shared components: PageHeader, StatCard, DataTable, EmptyState, RoleBadge, ConfirmDialog
 - [ ] 1.6 Auth screens: login, register (visual validation only)
-- [ ] 1.7 Dashboard
+- [x] 1.7 Dashboard
 - [ ] 1.8 Users: list, filters, create/edit dialog, delete confirm
 - [ ] 1.9 Teams: list, detail/members, create/edit dialog
 - [ ] 1.10 Roles: role assignment screen
