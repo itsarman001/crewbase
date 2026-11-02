@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { TeamCard } from "@/components/teams/team-card";
 import { TeamRosterDialog } from "@/components/teams/team-roster-dialog";
@@ -30,16 +30,16 @@ import {
 import { toast } from "sonner";
 
 export default function TeamsPage() {
-  const [teams] = React.useState<Team[]>(mockTeams);
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [departmentFilter, setDepartmentFilter] = React.useState("ALL");
-  const [sortBy, setSortBy] = React.useState("members-desc");
-  const [previewMode, setPreviewMode] = React.useState<"active" | "empty">("active");
+  const [teams] = useState<Team[]>(mockTeams);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [departmentFilter, setDepartmentFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("members-desc");
+  const [previewMode, setPreviewMode] = useState<"active" | "empty">("active");
 
-  const [selectedTeam, setSelectedTeam] = React.useState<Team | null>(null);
-  const [rosterDialogOpen, setRosterDialogOpen] = React.useState(false);
+  const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [rosterDialogOpen, setRosterDialogOpen] = useState(false);
 
-  const filteredTeams = React.useMemo(() => {
+  const filteredTeams = useMemo(() => {
     if (previewMode === "empty") return [];
 
     return teams

@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, type FormEvent } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { RoleBadge } from "@/components/shared/role-badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -21,10 +21,10 @@ import { toast } from "sonner";
 
 export default function ProfilePage() {
   const user = mockCurrentUser;
-  const [name, setName] = React.useState(user.name);
-  const [email] = React.useState(user.email);
-  const [theme, setTheme] = React.useState<"light" | "dark" | "system">("light");
-  const [isSaving, setIsSaving] = React.useState(false);
+  const [name, setName] = useState(user.name);
+  const [email] = useState(user.email);
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
+  const [isSaving, setIsSaving] = useState(false);
 
   const initials = user.name
     .split(" ")
@@ -33,7 +33,7 @@ export default function ProfilePage() {
     .slice(0, 2)
     .toUpperCase();
 
-  const handleSaveProfile = (e: React.FormEvent) => {
+  const handleSaveProfile = (e: FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setTimeout(() => {

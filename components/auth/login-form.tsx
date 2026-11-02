@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -21,14 +21,14 @@ import { toast } from "sonner";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = React.useState("elena.rostova@crewbase.internal");
-  const [password, setPassword] = React.useState("password123");
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [rememberMe, setRememberMe] = React.useState(true);
-  const [showAlert, setShowAlert] = React.useState(true);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [email, setEmail] = useState("elena.rostova@crewbase.internal");
+  const [password, setPassword] = useState("password123");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [showAlert, setShowAlert] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 

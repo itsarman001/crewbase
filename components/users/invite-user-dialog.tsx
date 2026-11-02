@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, type FormEvent } from "react";
 import {
   Dialog,
   DialogContent,
@@ -28,13 +28,13 @@ export function InviteUserDialog({
   onOpenChange,
   onUserInvited,
 }: InviteUserDialogProps) {
-  const [name, setName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [role, setRole] = React.useState<Role>(Role.USER);
-  const [teamId, setTeamId] = React.useState<string>("none");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [role, setRole] = useState<Role>(Role.USER);
+  const [teamId, setTeamId] = useState<string>("none");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!name || !email) {
       toast.error("Please fill in all required fields.");

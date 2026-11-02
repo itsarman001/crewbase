@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { RoleBadge } from "@/components/shared/role-badge";
 import { DataTable, ColumnDef } from "@/components/shared/data-table";
@@ -50,22 +50,22 @@ import {
 import { toast } from "sonner";
 
 export default function UsersPage() {
-  const [users, setUsers] = React.useState<User[]>(mockUsers);
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [roleFilter, setRoleFilter] = React.useState<string>("all");
-  const [teamFilter, setTeamFilter] = React.useState<string>("all");
-  const [previewMode, setPreviewMode] = React.useState<"active" | "non-admin" | "skeleton" | "empty">("active");
+  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [teamFilter, setTeamFilter] = useState<string>("all");
+  const [previewMode, setPreviewMode] = useState<"active" | "non-admin" | "skeleton" | "empty">("active");
 
   // Dialog states
-  const [selectedUser, setSelectedUser] = React.useState<User | null>(null);
-  const [roleDialogOpen, setRoleDialogOpen] = React.useState(false);
-  const [teamDialogOpen, setTeamDialogOpen] = React.useState(false);
-  const [inviteDialogOpen, setInviteDialogOpen] = React.useState(false);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = React.useState(false);
-  const [userToDelete, setUserToDelete] = React.useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [teamDialogOpen, setTeamDialogOpen] = useState(false);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   // Filter logic
-  const filteredUsers = React.useMemo(() => {
+  const filteredUsers = useMemo(() => {
     if (previewMode === "empty") return [];
 
     return users.filter((u) => {

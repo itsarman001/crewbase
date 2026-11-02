@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -22,15 +22,15 @@ import { toast } from "sonner";
 
 export function RegisterForm() {
   const router = useRouter();
-  const [fullName, setFullName] = React.useState("Elena Vance");
-  const [email, setEmail] = React.useState("elena.vance@company.com");
-  const [password, setPassword] = React.useState("secretPassw0rd!");
-  const [teamCode, setTeamCode] = React.useState("");
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [errorNotice, setErrorNotice] = React.useState<string | null>(null);
+  const [fullName, setFullName] = useState("Elena Vance");
+  const [email, setEmail] = useState("elena.vance@company.com");
+  const [password, setPassword] = useState("secretPassw0rd!");
+  const [teamCode, setTeamCode] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorNotice, setErrorNotice] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
     if (!fullName || fullName.length < 2) {

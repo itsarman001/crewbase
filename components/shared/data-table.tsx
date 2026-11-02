@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, type ReactNode } from "react";
 import {
   Table,
   TableBody,
@@ -16,10 +16,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ColumnDef<T> {
-  header: string | React.ReactNode;
+  header: string | ReactNode;
   accessorKey?: keyof T;
   className?: string;
-  cell?: (row: T) => React.ReactNode;
+  cell?: (row: T) => ReactNode;
 }
 
 interface DataTableProps<T> {
@@ -41,7 +41,7 @@ export function DataTable<T extends { id?: string | number }>({
   className,
   pageSize = 8,
 }: DataTableProps<T>) {
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
   const startIndex = (currentPage - 1) * pageSize;

@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, type ReactNode, type MouseEvent } from "react";
 import { Team, User } from "@/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
-const TEAM_ICONS: Record<string, React.ReactNode> = {
+const TEAM_ICONS: Record<string, ReactNode> = {
   team_core_eng: <Terminal className="size-5 text-primary" />,
   team_platform_infra: <Server className="size-5 text-blue-600" />,
   team_design_systems: <Palette className="size-5 text-indigo-600" />,
@@ -34,12 +34,12 @@ interface TeamCardProps {
 }
 
 export function TeamCard({ team, members = [], onManageRoster }: TeamCardProps) {
-  const [hasCopied, setHasCopied] = React.useState(false);
+  const [hasCopied, setHasCopied] = useState(false);
 
   const teamMembers = members.filter((m) => m.teamId === team.id);
   const displayCount = team.memberCount ?? teamMembers.length;
 
-  const handleCopyCode = (e: React.MouseEvent) => {
+  const handleCopyCode = (e: MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(team.code);
     setHasCopied(true);

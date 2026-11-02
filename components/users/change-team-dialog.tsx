@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -30,11 +30,11 @@ export function ChangeTeamDialog({
   onOpenChange,
   onTeamChanged,
 }: ChangeTeamDialogProps) {
-  const [selectedTeamId, setSelectedTeamId] = React.useState<string | null>(
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(
     user?.teamId ?? null
   );
-  const [prevUserId, setPrevUserId] = React.useState(user?.id);
-  const [isSaving, setIsSaving] = React.useState(false);
+  const [prevUserId, setPrevUserId] = useState(user?.id);
+  const [isSaving, setIsSaving] = useState(false);
 
   if (user && user.id !== prevUserId) {
     setPrevUserId(user.id);

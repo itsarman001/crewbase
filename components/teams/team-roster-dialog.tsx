@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +28,7 @@ export function TeamRosterDialog({
   open,
   onOpenChange,
 }: TeamRosterDialogProps) {
-  const [copied, setCopied] = React.useState(false);
+  const [copied, setCopied] = useState(false);
 
   if (!team) return null;
 

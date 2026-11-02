@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -37,10 +37,10 @@ import {
 import { toast } from "sonner";
 
 export default function DashboardPage() {
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [selectedRole, setSelectedRole] = React.useState<Role | "ALL">("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRole, setSelectedRole] = useState<Role | "ALL">("ALL");
 
-  const filteredUsers = React.useMemo(() => {
+  const filteredUsers = useMemo(() => {
     return mockUsers.filter((user) => {
       const matchesSearch =
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
