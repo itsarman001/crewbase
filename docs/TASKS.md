@@ -21,7 +21,7 @@ Use the Stitch MCP for designs and the shadcn MCP for components.
 - [x] 1.3 Types (`types/index.ts`) and typed mock data (`data/mock.ts`)
 - [x] 1.4 Layout shell: sidebar, header, user menu, mobile Sheet
 - [x] 1.5 Shared components: PageHeader, StatCard, DataTable, EmptyState, RoleBadge, ConfirmDialog
-- [ ] 1.6 Auth screens: login, register (visual validation only)
+- [x] 1.6 Auth screens: login, register (visual validation only)
 - [x] 1.7 Dashboard
 - [ ] 1.8 Users: list, filters, create/edit dialog, delete confirm
 - [ ] 1.9 Teams: list, detail/members, create/edit dialog
