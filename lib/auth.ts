@@ -42,8 +42,9 @@ export const getCurrentUser = async (): Promise<User | null> => {
       where: { id: decode.userId },
     });
     if (!userFromDb) return null;
-    const { password, ...user } = userFromDb;
-    return user as User;
+    const user = { ...userFromDb };
+    delete (user as { password?: string }).password;
+    return user as unknown as User;
   } catch (error) {
     console.error(`Error: ${error}`);
     return null;
