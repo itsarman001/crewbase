@@ -1,67 +1,41 @@
-import { generateToken, verifyPassword } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { loginSchema } from "@/lib/validations/auth";
+import { loginUser, AuthError } from "@/services/auth.service";
+import { apiSuccess, apiError, handleZodError } from "@/lib/api-response";
+import { AUTH_COOKIE_NAME } from "@/lib/auth";
+
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
-
-    // validate required fields
-    if (!email || !password) {
-      return NextResponse.json(
-        {
-          error: "Email and password are required or not valid",
-        },
-        { status: 400 },
-      );
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return apiError("VALIDATION_ERROR", "Invalid JSON payload", 400);
     }
 
-    // Find existing user
-    const userFromDb = await prisma.user.findUnique({
-      where: { email },
-      include: { team: true },
-    });
-
-    const isValidPassword =
-      userFromDb && (await verifyPassword(password, userFromDb.password));
-
-    if (!isValidPassword) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 },
-      );
+    const validation = loginSchema.safeParse(body);
+    if (!validation.success) {
+      return handleZodError(validation.error);
     }
 
-    // Generate Token
-    const token = generateToken(userFromDb.id);
+    const { user, token } = await loginUser(validation.data);
 
-    // Create Response
-    const response = NextResponse.json({
-      user: {
-        id: userFromDb.id,
-        email: userFromDb.email,
-        name: userFromDb.name,
-        role: userFromDb.role,
-        teamId: userFromDb.teamId,
-        team: userFromDb.team,
-      },
-    });
-
-    response.cookies.set("token", token, {
+    const response = apiSuccess({ user }, 200);
+    response.cookies.set(AUTH_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
   } catch (error) {
-    console.error(`Login Failed: ${error}`);
-    return NextResponse.json(
-      {
-        error: "Internal server error, Something went wrong!",
-      },
-      { status: 500 },
-    );
+    if (error instanceof AuthError) {
+      return apiError(error.code, error.message, error.status);
+    }
+    console.error("Login endpoint error:", error);
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

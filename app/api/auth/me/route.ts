@@ -1,25 +1,16 @@
-import { getCurrentUser } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth";
+import { apiSuccess, apiError, rethrowPrerenderError } from "@/lib/api-response";
 
 export async function GET() {
   try {
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: "you're not authenticated",
-        },
-        { status: 401 },
-      );
+    const session = await getSession();
+    if (!session) {
+      return apiError("UNAUTHENTICATED", "Authentication required", 401);
     }
-    return NextResponse.json(user);
+    return apiSuccess({ user: session.user }, 200);
   } catch (error) {
-    console.error(`Error while getting user: ${error}`);
-    return NextResponse.json(
-      {
-        error: "Internal server error, Something went wrong!",
-      },
-      { status: 500 },
-    );
+    rethrowPrerenderError(error);
+    console.error("Auth me endpoint error:", error);
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

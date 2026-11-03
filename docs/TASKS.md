@@ -8,10 +8,10 @@ Work top to bottom. Do only the phase requested. Tick boxes as you finish and ad
 - [x] Prisma 6.19.0 set up, init migration (teams, users) applied
 - [x] Auth helpers: password hashing, token generation, permission check
 - [x] Register API (validation, role assignment, token generation)
-- [ ] `.env.example` with `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`
-- [ ] Add `Role` enum and any missing fields to `schema.prisma` to match `SPEC.md`; migrate
-- [ ] Prisma client singleton (`lib/prisma.ts`)
-- [ ] Add Zod; create `lib/validations/`
+- [x] `.env.example` with `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`
+- [x] Add `Role` enum and any missing fields to `schema.prisma` to match `SPEC.md`; migrate
+- [x] Prisma client singleton (`lib/prisma.ts`)
+- [x] Add Zod; create `lib/validations/`
 
 ## Phase 1: UI only (mock data, no backend logic)
 Use the Stitch MCP for designs and the shadcn MCP for components.
@@ -31,17 +31,17 @@ Use the Stitch MCP for designs and the shadcn MCP for components.
 - [x] 1.13 List "TODO: wire up" spots for Phase 2
 
 ## Phase 2: Functionality
-- [ ] 2.1 `lib/permissions.ts` finalised against the `SPEC.md` matrix (with unit tests)
-- [ ] 2.2 Session helper `getSession()` (reads cookie, verifies JWT)
-- [ ] 2.3 `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
-- [ ] 2.4 `proxy.ts`: token check and redirects for protected routes
-- [ ] 2.5 Connect login/register forms (`useActionState` or fetch) and `AuthProvider`
-- [ ] 2.6 Users: services + routes + connect UI (pagination, search, role filter)
-- [ ] 2.7 Teams: services + routes + member add/remove + connect UI
-- [ ] 2.8 Role assignment endpoint + last-admin protection + connect UI
-- [ ] 2.9 Role-based navigation and page guards (403 view)
-- [ ] 2.10 Replace all `data/mock.ts` usage; delete the file
-- [ ] 2.11 Seed script (one Admin, sample teams/users)
+- [x] 2.1 `lib/permissions.ts` finalised against the `SPEC.md` matrix (with unit tests)
+- [x] 2.2 Session helper `getSession()` (reads cookie, verifies JWT)
+- [x] 2.3 `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`
+- [x] 2.4 `proxy.ts`: token check and redirects for protected routes
+- [x] 2.5 Connect login/register forms (`useActionState` or fetch) and `AuthProvider`
+- [x] 2.6 Users: services + routes + connect UI (pagination, search, role filter)
+- [x] 2.7 Teams: services + routes + member add/remove + connect UI
+- [x] 2.8 Role assignment endpoint + last-admin protection + connect UI
+- [x] 2.9 Role-based navigation and page guards (403 view)
+- [x] 2.10 Replace all `data/mock.ts` usage; delete the file
+- [x] 2.11 Seed script (one Admin, sample teams/users)
 
 ## Phase 3: Testing and polish
 - [ ] 3.1 Unit tests: permissions, auth helpers, validation schemas
