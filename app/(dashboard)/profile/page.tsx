@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { mockCurrentUser } from "@/data/mock";
+import { useAuth } from "@/components/auth/auth-provider";
 import {
   Laptop,
   Smartphone,
@@ -16,15 +16,25 @@ import {
   Monitor,
   Check,
   Save,
+  Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
-  const user = mockCurrentUser;
-  const [name, setName] = useState(user.name);
-  const [email] = useState(user.email);
+  const { user, refreshUser } = useAuth();
+  const [name, setName] = useState<string | null>(null);
   const [theme, setTheme] = useState<"light" | "dark" | "system">("light");
   const [isSaving, setIsSaving] = useState(false);
+
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const currentDisplayName = name !== null ? name : user.name;
 
   const initials = user.name
     .split(" ")
@@ -33,13 +43,33 @@ export default function ProfilePage() {
     .slice(0, 2)
     .toUpperCase();
 
-  const handleSaveProfile = (e: FormEvent) => {
+  const handleSaveProfile = async (e: FormEvent) => {
     e.preventDefault();
+    if (!currentDisplayName.trim()) return;
+
     setIsSaving(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(`/api/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: currentDisplayName.trim() }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error("Profile update failed", {
+          description: json.error?.message ?? "Could not save profile.",
+        });
+        return;
+      }
+
+      await refreshUser();
+      toast.success("Profile updated successfully!");
+    } catch {
+      toast.error("Network error saving profile.");
+    } finally {
       setIsSaving(false);
-      toast.success("Profile saved successfully");
-    }, 600);
+    }
   };
 
   const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
@@ -79,7 +109,7 @@ export default function ProfilePage() {
                 <RoleBadge role={user.role} />
               </div>
               <CardDescription className="text-xs">
-                {user.email} • {user.department ?? "Engineering"}
+                {user.email} • {user.team && "name" in user.team ? user.team.name : "Unassigned"}
               </CardDescription>
             </div>
           </div>
@@ -89,15 +119,15 @@ export default function ProfilePage() {
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Display Name</label>
               <Input
-                value={name}
+                value={currentDisplayName}
                 onChange={(e) => setName(e.target.value)}
                 className="h-9 text-sm"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-foreground">Work Email (SCIM Synced)</label>
+              <label className="text-xs font-semibold text-foreground">Work Email (Read Only)</label>
               <Input
-                value={email}
+                value={user.email}
                 disabled
                 className="h-9 text-sm bg-muted/50 cursor-not-allowed"
               />
@@ -108,7 +138,7 @@ export default function ProfilePage() {
             <Button
               type="submit"
               size="sm"
-              disabled={isSaving}
+              disabled={isSaving || currentDisplayName === user.name}
               className="gap-1.5 h-8 bg-primary text-primary-foreground hover:bg-primary/90"
             >
               <Save className="size-3.5" />
@@ -186,14 +216,14 @@ export default function ProfilePage() {
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-foreground">
-                    Chrome on Linux (X11)
+                    Current Web Session
                   </span>
                   <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold">
-                    Current Session
+                    Active
                   </span>
                 </div>
                 <span className="text-[11px] text-muted-foreground">
-                  IP: 192.168.1.42 • Session expires in 7 days
+                  Session secured with HTTP-Only Cookie • Expires in 7 days
                 </span>
               </div>
             </div>
@@ -212,17 +242,17 @@ export default function ProfilePage() {
               <Smartphone className="size-5 text-muted-foreground" />
               <div className="flex flex-col">
                 <span className="text-xs font-semibold text-foreground">
-                  Mobile Safari on iOS
+                  Mobile Companion
                 </span>
                 <span className="text-[11px] text-muted-foreground">
-                  Last active: 2 hours ago • New York, USA
+                  Last active: 2 hours ago
                 </span>
               </div>
             </div>
             <Button
               variant="outline"
               size="xs"
-              onClick={() => toast.success("Terminated iOS session.")}
+              onClick={() => toast.success("Terminated mobile companion session.")}
               className="text-destructive hover:text-destructive"
             >
               Revoke

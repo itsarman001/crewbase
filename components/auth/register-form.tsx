@@ -22,18 +22,18 @@ import { toast } from "sonner";
 
 export function RegisterForm() {
   const router = useRouter();
-  const [fullName, setFullName] = useState("Elena Vance");
-  const [email, setEmail] = useState("elena.vance@company.com");
-  const [password, setPassword] = useState("secretPassw0rd!");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [teamCode, setTeamCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorNotice, setErrorNotice] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!fullName || fullName.length < 2) {
+    if (!name || name.trim().length < 2) {
       setErrorNotice("Full name must be at least 2 characters.");
       return;
     }
@@ -48,16 +48,46 @@ export function RegisterForm() {
       return;
     }
 
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setErrorNotice("Password must contain at least 1 letter and 1 number.");
+      return;
+    }
+
     setErrorNotice(null);
     setIsLoading(true);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Account created successfully!", {
-        description: "Redirecting to workspace...",
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          teamCode: teamCode.trim() ? teamCode.trim().toUpperCase() : undefined,
+        }),
       });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setErrorNotice(
+          result.error?.message ?? "Registration failed. Please check your information."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Account created successfully!", {
+        description: `Welcome to Crewbase, ${result.data?.user?.name ?? name}!`,
+      });
+
       router.push("/dashboard");
-    }, 1200);
+      router.refresh();
+    } catch {
+      setErrorNotice("Network error occurred during registration. Please try again.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -77,7 +107,7 @@ export function RegisterForm() {
         <Alert className="bg-primary/10 border-primary/20 text-primary py-2.5 px-3">
           <Info className="size-4 shrink-0 text-primary" />
           <AlertDescription className="text-xs text-foreground font-medium leading-normal">
-            The first account created becomes the workspace administrator.
+            Self-registration defaults to standard <strong>USER</strong> access.
           </AlertDescription>
         </Alert>
 
@@ -104,8 +134,8 @@ export function RegisterForm() {
                 id="fullName"
                 type="text"
                 required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 placeholder="Your full name"
                 className="h-9 pl-9 text-sm bg-muted/30 border-border"
               />
@@ -165,7 +195,7 @@ export function RegisterForm() {
           <div className="flex flex-col gap-1.5 text-left">
             <div className="flex items-center justify-between">
               <label htmlFor="teamCode" className="text-xs font-medium text-foreground">
-                Team code
+                Squad code
               </label>
               <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded font-medium">
                 Optional
@@ -176,11 +206,11 @@ export function RegisterForm() {
               type="text"
               value={teamCode}
               onChange={(e) => setTeamCode(e.target.value.toUpperCase())}
-              placeholder="e.g. ENG-001"
+              placeholder="e.g. ENG or DSN"
               className="h-9 text-sm bg-muted/30 border-border font-mono uppercase"
             />
             <p className="text-[11px] text-muted-foreground">
-              Have a squad invite code? Enter it to join your team automatically.
+              Have a squad code? Enter it to join your team automatically.
             </p>
           </div>
 

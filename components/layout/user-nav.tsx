@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -14,24 +13,35 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { RoleBadge } from "@/components/shared/role-badge";
-import { mockCurrentUser } from "@/data/mock";
-import { User, LogOut, Settings, ShieldCheck } from "lucide-react";
-import { toast } from "sonner";
+import { useAuth } from "@/components/auth/auth-provider";
+import { User as UserIcon, LogOut, ShieldCheck, Loader2 } from "lucide-react";
+import { Role } from "@/types";
 
 export function UserNav() {
-  const user = mockCurrentUser;
+  const { user, logout, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="size-8 rounded-full bg-muted animate-pulse flex items-center justify-center">
+        <Loader2 className="size-3.5 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <Button variant="outline" size="sm" render={<Link href="/login" />}>
+        Sign In
+      </Button>
+    );
+  }
+
   const initials = user.name
     .split(" ")
     .map((n) => n[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
-
-  const handleSignOut = () => {
-    toast.info("Logged out", {
-      description: "Session termination is simulated in this UI phase.",
-    });
-  };
 
   return (
     <DropdownMenu>
@@ -57,21 +67,19 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem render={<Link href="/profile" className="flex items-center gap-2 cursor-pointer w-full" />}>
-            <User className="size-4 text-muted-foreground" />
+            <UserIcon className="size-4 text-muted-foreground" />
             <span>Profile & Account</span>
           </DropdownMenuItem>
-          <DropdownMenuItem render={<Link href="/roles" className="flex items-center gap-2 cursor-pointer w-full" />}>
-            <ShieldCheck className="size-4 text-muted-foreground" />
-            <span>Access Entitlements</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem render={<Link href="/settings" className="flex items-center gap-2 cursor-pointer w-full" />}>
-            <Settings className="size-4 text-muted-foreground" />
-            <span>Workspace Settings</span>
-          </DropdownMenuItem>
+          {user.role === Role.ADMIN && (
+            <DropdownMenuItem render={<Link href="/roles" className="flex items-center gap-2 cursor-pointer w-full" />}>
+              <ShieldCheck className="size-4 text-muted-foreground" />
+              <span>Access Entitlements</span>
+            </DropdownMenuItem>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={handleSignOut}
+          onClick={logout}
           className="text-destructive focus:text-destructive cursor-pointer"
         >
           <LogOut className="size-4 mr-2" />

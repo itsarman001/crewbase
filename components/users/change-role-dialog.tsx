@@ -49,16 +49,37 @@ export function ChangeRoleDialog({
     .slice(0, 2)
     .toUpperCase();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      const res = await fetch(`/api/users/${user.id}/role`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: selectedRole }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        toast.error("Role update failed", {
+          description: json.error?.message ?? "Could not update user role.",
+        });
+        setIsSaving(false);
+        return;
+      }
+
       onRoleChanged?.(user.id, selectedRole);
       toast.success(`Role updated for ${user.name}`, {
-        description: `Privilege scope elevated/adjusted to ${ROLE_CONFIG[selectedRole].label}.`,
+        description: `Privilege scope adjusted to ${ROLE_CONFIG[selectedRole].label}.`,
       });
       onOpenChange(false);
-    }, 600);
+    } catch {
+      toast.error("Network error", {
+        description: "Failed to connect to the server.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const availableRoles = [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST];
@@ -101,78 +122,82 @@ export function ChangeRoleDialog({
         </div>
 
         {/* Role Options */}
-        <div className="space-y-2 mt-1">
-          <label className="text-xs font-semibold text-foreground">
-            Select new role
-          </label>
-          <div className="grid gap-2">
-            {availableRoles.map((role) => {
-              const isSelected = selectedRole === role;
-              const config = ROLE_CONFIG[role];
-              return (
+        <div className="space-y-2 mt-2">
+          {availableRoles.map((role) => {
+            const config = ROLE_CONFIG[role];
+            const isSelected = selectedRole === role;
+
+            return (
+              <div
+                key={role}
+                onClick={() => setSelectedRole(role)}
+                className={cn(
+                  "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all",
+                  isSelected
+                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                    : "border-border hover:border-border/80 hover:bg-muted/30"
+                )}
+              >
                 <div
-                  key={role}
-                  onClick={() => setSelectedRole(role)}
                   className={cn(
-                    "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all",
+                    "size-4 rounded-full border mt-0.5 flex items-center justify-center shrink-0 transition-colors",
                     isSelected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/40"
-                      : "border-border bg-card hover:bg-muted/30"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-muted-foreground/40"
                   )}
                 >
-                  <div className="mt-0.5 size-4 rounded-full border border-border flex items-center justify-center shrink-0">
-                    {isSelected && <div className="size-2 rounded-full bg-primary" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">
-                          {config.label}
-                        </span>
-                        <RoleBadge role={role} size="sm" />
-                      </div>
-                      {isSelected && <Check className="size-4 text-primary" />}
-                    </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      {config.description}
-                    </p>
-                  </div>
+                  {isSelected && <Check className="size-2.5 stroke-[3]" />}
                 </div>
-              );
-            })}
-          </div>
+
+                <div className="flex-1 space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground">
+                      {config.label}
+                    </span>
+                    <span className="text-[10px] font-mono text-muted-foreground">
+                      Tier {config.level}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {config.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
-        {/* Protection Note */}
-        {user.role === Role.ADMIN && selectedRole !== Role.ADMIN && (
-          <div className="flex items-center gap-2 p-2.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs">
-            <ShieldAlert className="size-4 shrink-0" />
-            <span>
-              Last Admin Guard: Demoting the final administrator is disallowed by RBAC policies.
-            </span>
+        {/* Admin Policy Warning */}
+        {selectedRole !== Role.ADMIN && user.role === Role.ADMIN && (
+          <div className="flex items-start gap-2.5 p-3 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-900 dark:text-amber-200 text-xs">
+            <ShieldAlert className="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+            <p>
+              Demoting an Administrator requires that at least one other active Administrator exists in the workspace.
+            </p>
           </div>
         )}
 
-        <DialogFooter className="pt-2 gap-2">
+        <DialogFooter className="gap-2 sm:gap-0 pt-2">
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={() => onOpenChange(false)}
+            disabled={isSaving}
           >
             Cancel
           </Button>
           <Button
             type="button"
             size="sm"
-            disabled={isSaving}
             onClick={handleSave}
-            className="bg-primary text-primary-foreground hover:bg-primary/90 min-w-[100px]"
+            disabled={isSaving || selectedRole === user.role}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             {isSaving ? (
               <>
                 <Loader2 className="size-3.5 animate-spin mr-1.5" />
-                <span>Updating...</span>
+                <span>Updating role...</span>
               </>
             ) : (
               <span>Save changes</span>

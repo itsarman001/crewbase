@@ -17,8 +17,9 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { RoleBadge } from "@/components/shared/role-badge";
-import { mockCurrentUser } from "@/data/mock";
+import { useAuth } from "@/components/auth/auth-provider";
 import { NAV_ITEMS } from "@/lib/constants";
+import { canAccessRoute } from "@/lib/permissions";
 import {
   LayoutDashboard,
   Users,
@@ -27,6 +28,7 @@ import {
   ShieldCheck,
   User as UserIcon,
 } from "lucide-react";
+import { Role } from "@/types";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
@@ -37,12 +39,23 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const currentUser = mockCurrentUser;
+  const { user } = useAuth();
 
-  // Filter navigation items based on current user's role
+  const currentRole = user?.role ?? Role.USER;
+
+  // Filter navigation items based on current user's role and permission checks
   const visibleNavItems = NAV_ITEMS.filter((item) =>
-    item.allowedRoles.includes(currentUser.role)
+    item.allowedRoles.includes(currentRole) && canAccessRoute(currentRole, item.href)
   );
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "CB";
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border bg-sidebar" {...props}>
@@ -128,19 +141,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter className="border-t border-border/70 p-3">
         <div className="flex items-center gap-3 p-1.5 rounded-lg bg-card/60 border border-border group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:border-none group-data-[collapsible=icon]:bg-transparent">
           <div className="size-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-medium text-xs shrink-0">
-            {currentUser.name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .slice(0, 2)
-              .toUpperCase()}
+            {initials}
           </div>
           <div className="flex flex-col min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
             <span className="text-xs font-medium text-foreground truncate">
-              {currentUser.name}
+              {user?.name ?? "Guest User"}
             </span>
             <div className="mt-0.5">
-              <RoleBadge role={currentUser.role} size="sm" />
+              <RoleBadge role={currentRole} size="sm" />
             </div>
           </div>
         </div>

@@ -1,104 +1,41 @@
-import { generateToken, hashPassword } from "@/lib/auth";
-import { prisma } from "@/lib/db";
-import { Role } from "@/types";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
+import { registerSchema } from "@/lib/validations/auth";
+import { registerUser, AuthError } from "@/services/auth.service";
+import { apiSuccess, apiError, handleZodError } from "@/lib/api-response";
+import { AUTH_COOKIE_NAME } from "@/lib/auth";
+
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, password, teamCode } = await request.json();
-
-    // validate required fields
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        {
-          error: "name, email and password are required or not valid",
-        },
-        { status: 400 },
-      );
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return apiError("VALIDATION_ERROR", "Invalid JSON payload", 400);
     }
 
-    // Find existing user
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (existingUser) {
-      return NextResponse.json(
-        {
-          error: "User with this email address already exists",
-        },
-        { status: 409 },
-      );
+    const validation = registerSchema.safeParse(body);
+    if (!validation.success) {
+      return handleZodError(validation.error);
     }
 
-    let teamId: string | undefined = undefined;
-    if (teamCode) {
-      const team = await prisma.team.findUnique({
-        where: { code: teamCode },
-      });
+    const { user, token } = await registerUser(validation.data);
 
-      if (!team) {
-        return NextResponse.json(
-          {
-            error: "Please enter a valid team code",
-          },
-          { status: 400 },
-        );
-      }
-
-      teamId = team.id;
-    }
-
-    const hashedPassword = await hashPassword(password);
-
-    // First user become ADMIN, other become USER
-    const userCount = await prisma.user.count();
-    const role = userCount === 0 ? Role.ADMIN : Role.USER;
-
-    // Create User
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role,
-        teamId,
-      },
-      include: {
-        team: true,
-      },
-    });
-
-    // Generate Token
-    const token = generateToken(user.id);
-
-    // Create Response
-    const response = NextResponse.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        teamId: user.teamId,
-        team: user.team,
-      },
-    });
-
-    response.cookies.set("token", token, {
+    const response = apiSuccess({ user }, 201);
+    response.cookies.set(AUTH_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
   } catch (error) {
-    console.error(`Registration Error: ${error}`);
-    return NextResponse.json(
-      {
-        error: "Internal server error, Something went wrong!",
-      },
-      { status: 500 },
-    );
+    if (error instanceof AuthError) {
+      return apiError(error.code, error.message, error.status);
+    }
+    console.error("Register endpoint error:", error);
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

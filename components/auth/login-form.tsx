@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -21,29 +21,54 @@ import { toast } from "sonner";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("elena.rostova@crewbase.internal");
-  const [password, setPassword] = useState("password123");
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+
+  const [email, setEmail] = useState("olivia.bennett@crewbase.dev");
+  const [password, setPassword] = useState("Password@123");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [showAlert, setShowAlert] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setErrorMessage(null);
 
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success("Welcome back!", {
-        description: "Redirecting to workspace dashboard...",
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-      router.push("/dashboard");
-    }, 1000);
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setErrorMessage(
+          result.error?.message ?? "Invalid email or password. Please try again."
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Welcome back!", {
+        description: `Signed in as ${result.data?.user?.name ?? email}`,
+      });
+
+      router.push(callbackUrl);
+      router.refresh();
+    } catch {
+      setErrorMessage("Network error occurred. Please try again later.");
+      setIsLoading(false);
+    }
   };
 
   const handleSSO = (provider: string) => {
     toast.info(`Single Sign-On (${provider})`, {
-      description: "SSO authentication flow is simulated for Phase 1.",
+      description: "SSO authentication is managed via enterprise identity provider.",
     });
   };
 
@@ -72,22 +97,30 @@ export function LoginForm() {
           </p>
         </div>
 
-        {/* Dismissible Error Alert */}
+        {/* Demo Accounts Notice */}
         {showAlert && (
-          <Alert variant="destructive" className="mb-4 bg-destructive/10 border-destructive/20 text-destructive relative pr-8">
-            <AlertCircle className="size-4" />
-            <AlertTitle className="text-xs font-semibold">Demo Notice</AlertTitle>
-            <AlertDescription className="text-xs">
-              Preview mode: click sign-in below to enter the dashboard.
+          <Alert className="mb-4 bg-primary/10 border-primary/20 text-foreground relative pr-8">
+            <AlertCircle className="size-4 text-primary" />
+            <AlertTitle className="text-xs font-semibold text-primary">Pre-seeded Accounts</AlertTitle>
+            <AlertDescription className="text-xs text-muted-foreground">
+              Admin: <code className="text-foreground font-mono">olivia.bennett@crewbase.dev</code> | Password: <code className="text-foreground font-mono">Password@123</code>
             </AlertDescription>
             <button
               type="button"
               onClick={() => setShowAlert(false)}
-              className="absolute right-2 top-2 p-1 text-destructive/80 hover:text-destructive"
+              className="absolute right-2 top-2 p-1 text-muted-foreground hover:text-foreground"
               aria-label="Dismiss alert"
             >
               <X className="size-3.5" />
             </button>
+          </Alert>
+        )}
+
+        {/* Error Notice */}
+        {errorMessage && (
+          <Alert variant="destructive" className="mb-4 bg-destructive/10 border-destructive/20 text-destructive text-xs">
+            <AlertCircle className="size-4" />
+            <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
         )}
 
@@ -121,7 +154,7 @@ export function LoginForm() {
                 onClick={(e) => {
                   e.preventDefault();
                   toast.info("Password Reset", {
-                    description: "Password reset is out of scope for this phase.",
+                    description: "Self-service password reset is disabled for workspace policy.",
                   });
                 }}
                 className="text-xs text-primary font-medium hover:underline"
@@ -168,7 +201,7 @@ export function LoginForm() {
             </div>
             <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 rounded bg-muted font-medium flex items-center gap-1">
               <ShieldCheck className="size-3 text-primary" />
-              2FA Enabled
+              2FA Ready
             </span>
           </div>
 
@@ -253,7 +286,7 @@ export function LoginForm() {
         </div>
       </div>
 
-      {/* Regulatory & System Status Footnote */}
+      {/* Regulatory Footnote */}
       <p className="mt-4 text-center text-xs text-muted-foreground max-w-xs leading-relaxed">
         By signing in, you agree to Crewbase&apos;s{" "}
         <Link href="#" className="underline hover:text-foreground">Terms</Link> and{" "}
